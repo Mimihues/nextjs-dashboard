@@ -2,17 +2,16 @@
 
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { useSearchParams, usePathname, useRouter } from 'next/navigation';
-import { useDebouncedCallback } from 'use-debounce';
+import { useDebouncedCallback } from 'use-debounce'; // ¡Instala esto! npm i use-debounce
 
 export default function Search({ placeholder }: { placeholder: string }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
 
-  // Usamos un debounce para que no busque por cada letra, sino tras 300ms de dejar de escribir
   const handleSearch = useDebouncedCallback((term) => {
     const params = new URLSearchParams(searchParams);
-    params.set('page', '1'); // Reiniciar a la página 1 cuando buscamos algo nuevo
+    params.set('page', '1'); // Reiniciamos a la página 1 al buscar
     if (term) {
       params.set('query', term);
     } else {
@@ -23,9 +22,7 @@ export default function Search({ placeholder }: { placeholder: string }) {
 
   return (
     <div className="relative flex flex-1 flex-shrink-0">
-      <label htmlFor="search" className="sr-only">
-        Search
-      </label>
+      <label htmlFor="search" className="sr-only">Search</label>
       <input
         className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
         placeholder={placeholder}

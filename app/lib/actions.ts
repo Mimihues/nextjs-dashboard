@@ -33,7 +33,6 @@ export type State = {
   message?: string | null;
 };
 
-// ACCIÓN PARA CREAR
 export async function createInvoice(prevState: State, formData: FormData) {
   const validatedFields = CreateInvoice.safeParse({
     customerId: formData.get('customerId'),
@@ -58,15 +57,20 @@ export async function createInvoice(prevState: State, formData: FormData) {
       VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
     `;
   } catch (error) {
-    return { message: 'Database Error: Failed to Create Invoice.' };
+    return {
+      message: 'Database Error: Failed to Create Invoice.',
+    };
   }
 
   revalidatePath('/dashboard/invoices');
   redirect('/dashboard/invoices');
 }
 
-// ACCIÓN PARA ACTUALIZAR (La que te faltaba)
-export async function updateInvoice(id: string, prevState: State, formData: FormData) {
+export async function updateInvoice(
+  id: string,
+  prevState: State,
+  formData: FormData,
+) {
   const validatedFields = UpdateInvoice.safeParse({
     customerId: formData.get('customerId'),
     amount: formData.get('amount'),
@@ -97,7 +101,6 @@ export async function updateInvoice(id: string, prevState: State, formData: Form
   redirect('/dashboard/invoices');
 }
 
-// ACCIÓN PARA BORRAR
 export async function deleteInvoice(id: string) {
   try {
     await sql`DELETE FROM invoices WHERE id = ${id}`;
@@ -105,5 +108,28 @@ export async function deleteInvoice(id: string) {
     return { message: 'Deleted Invoice.' };
   } catch (error) {
     return { message: 'Database Error: Failed to Delete Invoice.' };
+  }
+}
+import { signIn } from '@/auth';
+import { AuthError } from 'next-auth';
+
+// ... (tus otras acciones de crear/editar facturas)
+
+export async function authenticate(
+  prevState: string | undefined,
+  formData: FormData,
+) {
+  try {
+    await signIn('credentials', formData);
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case 'CredentialsSignin':
+          return 'Invalid credentials.';
+        default:
+          return 'Something went wrong.';
+      }
+    }
+    throw error;
   }
 }
